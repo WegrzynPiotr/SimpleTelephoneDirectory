@@ -49,6 +49,7 @@ namespace ConsoleApp2
             Console.WriteLine("A - Szukaj po nr telefonu:");
             Console.WriteLine("D - Dodaj nowy kontakt:");
             Console.WriteLine("U - Usuń kontakt:");
+            Console.WriteLine("E - Edytuj kontakt:");
 
         }
         static void getOption()
@@ -75,8 +76,11 @@ namespace ConsoleApp2
                     addNewElement();
                     break;
                 case ConsoleKey.U:
-                    Console.Clear();
                     removeContact();
+                    break;
+                case ConsoleKey.E:
+                    Console.Clear();
+                    editContact();
                     break;
             }
             safeToFile();
@@ -94,11 +98,72 @@ namespace ConsoleApp2
             Console.WriteLine();
         }
 
+        static void editContact() {
+            Console.Clear();
+            renderAllContacts();
+            Console.WriteLine("Wpisz kontakt który chcesz edytować");
+            string fullName = Console.ReadLine();
+            fullName = fullName.ToLower();
+
+            string currName = "";
+            string currNumber = "";
+            foreach (var element in dictionary)
+            {
+                if (element.Key.ToLower().Contains(fullName) || element.Value.Contains(fullName))
+                {
+                    currName = element.Key;
+                    currNumber = element.Value;
+                }
+
+            }
+            if (!currName.ToLower().Contains(fullName) && !currNumber.Contains(fullName) || fullName.Length == 0)
+            {
+                Console.WriteLine("Błędne dane\n");
+                return;
+
+            }
+            Console.Clear();
+            Console.WriteLine("\nCzy " + currName + " z numerem tel. " + currNumber + " ma zostać edytowany? (kliknij Y aby potwierdzić)");
+            ConsoleKeyInfo keyInfo = Console.ReadKey();
+            if (keyInfo.Key == ConsoleKey.Y)
+            {
+                Console.WriteLine("Jeśli chcesz zmienić tylko nazwę kliknij 'N', a jeśli numer tel 'T' ");
+                string newName = "";
+                string newNumber = "";
+                ConsoleKeyInfo keyI = Console.ReadKey();
+                switch (keyI.Key)
+                {
+                    case ConsoleKey.N:
+                        Console.WriteLine("\nWpisz nową nazwę dla " + currName + "\n");
+                        newName = Console.ReadLine();
+                        dictionary.Remove(currName);
+                        dictionary.Add(newName, currNumber);
+                        Console.WriteLine("Zmiana z "+ currName + " " + currNumber + " na:");
+                        Console.WriteLine(newName + " " + currNumber);
+                        break;
+                    case ConsoleKey.T:
+                        Console.WriteLine("\nWpisz nowy numer dla" + currName + " z nr tel. " + currNumber + "\n");
+                        newNumber = Console.ReadLine();
+                        dictionary[currName] = newNumber;
+                        Console.WriteLine("Zmiana z "+currName + " " + currNumber + " na:");
+                        Console.WriteLine(currName + " " + newNumber);
+                        break;
+                }
+                safeToFile();
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Żaden kontakt nie został Edytowany!");
+                return;
+            }
+        }
+
         static void removeContact() {
 
             Console.Clear();
             renderAllContacts();
-            Console.WriteLine("Wpisz osobę którą chcesz skasować");
+            Console.WriteLine("Wpisz osobę lub numer kontaktu, który chcesz skasować");
             string fullName = Console.ReadLine();         
             fullName = fullName.ToLower();
 
@@ -115,7 +180,7 @@ namespace ConsoleApp2
             }
             if (!currName.ToLower().Contains(fullName.ToLower()) && !currNumber.Contains(fullName) || fullName.Length==0)
             {
-                Console.WriteLine("Błędnie wpisane dane\n");
+                Console.WriteLine("Błędne dane\n");
                 return;
                 
             }
